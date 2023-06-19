@@ -6,12 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>867</width>
+    <height>625</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Zank POS</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../../../OneDrive/Pictures/SPARKY-RESTO-1.png</normaloff>../../../OneDrive/Pictures/SPARKY-RESTO-1.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QPushButton" name="searchBtn">
@@ -68,16 +72,16 @@
      <rect>
       <x>10</x>
       <y>90</y>
-      <width>780</width>
-      <height>400</height>
+      <width>840</width>
+      <height>420</height>
      </rect>
     </property>
    </widget>
    <widget class="QPushButton" name="itemBtn">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>510</y>
+      <x>10</x>
+      <y>530</y>
       <width>120</width>
       <height>50</height>
      </rect>
@@ -106,8 +110,8 @@
    <widget class="QPushButton" name="brandBtn">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>510</y>
+      <x>140</x>
+      <y>530</y>
       <width>120</width>
       <height>50</height>
      </rect>
@@ -136,8 +140,8 @@
    <widget class="QPushButton" name="closeBtn">
     <property name="geometry">
      <rect>
-      <x>660</x>
-      <y>510</y>
+      <x>710</x>
+      <y>530</y>
       <width>120</width>
       <height>50</height>
      </rect>
@@ -166,8 +170,8 @@
    <widget class="QPushButton" name="enterBtn">
     <property name="geometry">
      <rect>
-      <x>530</x>
-      <y>510</y>
+      <x>580</x>
+      <y>530</y>
       <width>120</width>
       <height>50</height>
      </rect>
@@ -193,13 +197,73 @@
      <string>ENTER</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="prevBtn">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>530</y>
+      <width>100</width>
+      <height>50</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>100</width>
+      <height>0</height>
+     </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>PREV</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="nextBtn">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>530</y>
+      <width>100</width>
+      <height>50</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>100</width>
+      <height>0</height>
+     </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>NEXT</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>867</width>
      <height>21</height>
     </rect>
    </property>
