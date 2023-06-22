@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>893</width>
-    <height>637</height>
+    <width>1044</width>
+    <height>612</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -44,11 +44,20 @@
     <property name="mouseTracking">
      <bool>true</bool>
     </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
     <property name="styleSheet">
      <string notr="true"/>
     </property>
     <property name="text">
      <string>SEARCH</string>
+    </property>
+    <property name="default">
+     <bool>true</bool>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLineEdit" name="searchTxt">
@@ -56,7 +65,7 @@
      <rect>
       <x>140</x>
       <y>20</y>
-      <width>730</width>
+      <width>870</width>
       <height>50</height>
      </rect>
     </property>
@@ -72,39 +81,12 @@
      <rect>
       <x>10</x>
       <y>90</y>
-      <width>870</width>
+      <width>1020</width>
       <height>420</height>
      </rect>
     </property>
-   </widget>
-   <widget class="QPushButton" name="itemBtn">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>530</y>
-      <width>120</width>
-      <height>50</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>100</width>
-      <height>0</height>
-     </size>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <property name="cursor">
-     <cursorShape>PointingHandCursor</cursorShape>
-    </property>
-    <property name="mouseTracking">
-     <bool>true</bool>
-    </property>
-    <property name="text">
-     <string>ITEM</string>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
     </property>
    </widget>
    <widget class="QPushButton" name="brandBtn">
@@ -133,6 +115,9 @@
     <property name="mouseTracking">
      <bool>true</bool>
     </property>
+    <property name="focusPolicy">
+     <enum>Qt::ClickFocus</enum>
+    </property>
     <property name="text">
      <string>BRAND</string>
     </property>
@@ -140,7 +125,7 @@
    <widget class="QPushButton" name="closeBtn">
     <property name="geometry">
      <rect>
-      <x>760</x>
+      <x>910</x>
       <y>530</y>
       <width>120</width>
       <height>50</height>
@@ -162,6 +147,9 @@
     </property>
     <property name="mouseTracking">
      <bool>true</bool>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::ClickFocus</enum>
     </property>
     <property name="text">
      <string>CLOSE</string>
@@ -170,7 +158,7 @@
    <widget class="QPushButton" name="enterBtn">
     <property name="geometry">
      <rect>
-      <x>630</x>
+      <x>780</x>
       <y>530</y>
       <width>120</width>
       <height>50</height>
@@ -193,6 +181,9 @@
     <property name="mouseTracking">
      <bool>true</bool>
     </property>
+    <property name="focusPolicy">
+     <enum>Qt::ClickFocus</enum>
+    </property>
     <property name="text">
      <string>ENTER</string>
     </property>
@@ -200,7 +191,7 @@
    <widget class="QPushButton" name="prevBtn">
     <property name="geometry">
      <rect>
-      <x>340</x>
+      <x>400</x>
       <y>530</y>
       <width>100</width>
       <height>50</height>
@@ -222,6 +213,9 @@
     </property>
     <property name="mouseTracking">
      <bool>true</bool>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::ClickFocus</enum>
     </property>
     <property name="text">
      <string>PREV</string>
@@ -230,7 +224,7 @@
    <widget class="QPushButton" name="nextBtn">
     <property name="geometry">
      <rect>
-      <x>450</x>
+      <x>510</x>
       <y>530</y>
       <width>100</width>
       <height>50</height>
@@ -253,8 +247,50 @@
     <property name="mouseTracking">
      <bool>true</bool>
     </property>
+    <property name="focusPolicy">
+     <enum>Qt::ClickFocus</enum>
+    </property>
     <property name="text">
      <string>NEXT</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="itemBtn">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>530</y>
+      <width>120</width>
+      <height>50</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>100</width>
+      <height>0</height>
+     </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string>ITEM</string>
+    </property>
+    <property name="default">
+     <bool>true</bool>
     </property>
    </widget>
   </widget>
@@ -263,7 +299,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>893</width>
+     <width>1044</width>
      <height>21</height>
     </rect>
    </property>
