@@ -133,6 +133,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 padding: 4px;
             }
         """)
+        self.totalLabel.setStyleSheet("font-size: 14px; font-weight: bold; color: black;")
         self.enterBtn.clicked.connect(self.enter)
         self.enterBtn.setStyleSheet("""
             QPushButton {
@@ -341,9 +342,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         print("Previous!")
         self.model.clear()
         global current_page
-        global isUsed
-
-        isUsed = False
+        # global isUsed
+        #
+        # isUsed = False
 
         if current_page > 0 and current_page != 1:
             self.prevBtn.setDisabled(False)
@@ -352,6 +353,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.nextBtn.setStyleSheet("background-color: blue; color: white;")
             current_page = current_page - 1
             self.populate_tableview(current_page);
+            self.totalLabel.setText(
+                "Total Records: " + str(rows_per_page * (current_page + 1)) + "/" + str(len(self.search_isUsed())))
         elif current_page == 1:
                 self.prevBtn.setDisabled(True)
                 self.prevBtn.setStyleSheet("background-color: #5D8AA8; color: darkgray;")
@@ -375,8 +378,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.populate_tableview(current_page)
 
                 if current_page == total_pages - 1:
-                        self.nextBtn.setDisabled(True)
-                        self.nextBtn.setStyleSheet("background-color: #5D8AA8; color: darkgray;")
+                    self.totalLabel.setText("Total Records: " + str(len(self.search_isUsed())) + "/" + str(len(self.search_isUsed())))
+                    self.nextBtn.setDisabled(True)
+                    self.nextBtn.setStyleSheet("background-color: #5D8AA8; color: darkgray;")
 
             self.prevBtn.setDisabled(False)
             self.prevBtn.setStyleSheet("""
@@ -492,6 +496,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tableView.setColumnWidth(4, 80)
         self.tableView.setColumnWidth(5, 120)
         self.tableView.setColumnWidth(6, 80)
+
+        # self.totalLabel.setText("Total Records: " + str(len(self.search_isUsed())))
+        if len(self.search_isUsed()) <= rows_per_page:
+            self.totalLabel.setText("Total Records: " + str(len(self.search_isUsed())) + "/" + str(len(self.search_isUsed())))
+        elif len(self.search_isUsed()) > rows_per_page:
+            self.totalLabel.setText(
+                "Total Records: " + str(rows_per_page*(current_page+1)) + "/" + str(len(self.search_isUsed())))
 
 
 if __name__ == "__main__":
