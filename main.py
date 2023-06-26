@@ -1,14 +1,23 @@
 import math
+import os
+import tempfile
+from escpos.printer import Serial
+from docx import Document
+from docx.shared import Pt, Inches, Cm
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+from datetime import date, datetime
+from itertools import count
+
 
 import PyQt5
 import pyodbc
-from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtCore import QEvent, Qt, QItemSelectionModel, QObject
-from PyQt5.QtGui import QStandardItem, QStandardItemModel, QColor, QFont, QPalette
-from PyQt5.QtSql import QSqlTableModel, QSqlQuery
-from PyQt5.QtWidgets import QMainWindow, QPushButton, QVBoxLayout, QWidget, QHeaderView, QStyledItemDelegate, \
-    QAbstractItemView, QItemDelegate, QTableView, QLineEdit
-from reportlab.graphics.widgets.table import TableWidget
+import win32ui
+from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5.QtCore import QEvent, Qt, QObject, QSortFilterProxyModel
+from PyQt5.QtGui import QStandardItem, QStandardItemModel, QFont, QCursor, QTextCharFormat, QColor, QTextCursor, \
+    QTextDocument
+from PyQt5.QtWidgets import QMainWindow, QHeaderView, QAbstractItemView, QTableView, QLineEdit, QStyledItemDelegate, \
+    QStyleOptionViewItem, QTextEdit, QMessageBox
 
 from pagination_ui import Ui_MainWindow
 
@@ -31,6 +40,7 @@ current_page = 0
 total_pages = 0
 isUsed = False
 search_result = []
+print_filename = ""
 
 
 class MyEventFilter(QObject):
@@ -56,6 +66,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.setupUi(self)
 
+        self.setFixedSize(1040, 630)
+        # self.setMouseTracking(True)  # Enable mouse tracking
+        # self.setCursor(Qt.ArrowCursor)  # Set the cursor to arrow
+
         self.searchTxt.setStyleSheet("""
             QLineEdit {
                 border: 1px solid gray; 
@@ -68,8 +82,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 border: 3px solid black;
             }
         """)
-        # Connect the returnPressed signal to the custom method
-        # self.searchTxt.returnPressed.connect(self.search)
         # Connect the textChanged signal to the custom method
         self.searchTxt.textChanged.connect(self.search_isEmpty)
         self.searchBtn.clicked.connect(self.search)
@@ -104,6 +116,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             }
             QPushButton#brandBtn:hover {
                 background-color: #3B3B3B;
+                border: 2px solid white;
+                padding: 4px;
+            }
+        """)
+        self.printBtn.clicked.connect(self.print)
+        self.printBtn.setStyleSheet("""
+            QPushButton#printBtn {
+                background-color : #524532;
+                color: white;
+            }
+            QPushButton#printBtn:hover {
+                background-color: #6E5C43;
                 border: 2px solid white;
                 padding: 4px;
             }
@@ -176,8 +200,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.searchTxt.installEventFilter(self.event_filter)
         self.tableView.installEventFilter(self.event_filter)
 
-        # self.tableView.setItemDelegate(HighlightDelegate())
-
         # Hide the vertical header
         self.tableView.verticalHeader().setVisible(False)
 
@@ -237,6 +259,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 current_page = 0
                 self.model.clear()
                 self.populate_tableview(current_page)
+                self.searchTxt.clearFocus()
             else:
                 print("Text is not a substring in the database")
 
@@ -306,6 +329,169 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             else:
                 print("Text is not a match in the database")
 
+    def print(self):
+
+        dlg = QMessageBox(self)
+        dlg.setWindowTitle("Confirmation Message")
+        dlg.setText("Are you sure you want to print it?")
+        dlg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        dlg.setIcon(QMessageBox.Question)
+        button = dlg.exec()
+
+        if button == QMessageBox.Yes:
+            print("Yes!")
+
+            # Get the selection model from the table view
+            selection_model = self.tableView.selectionModel()
+
+            if selection_model.hasSelection():
+
+                # Get the selected rows
+                selected_rows = selection_model.selectedRows()
+
+                # Print the values of all cells in the selected rows
+                for index in selected_rows:
+                    row = index.row()
+                    items = []
+                    for column in range(self.model.columnCount()):
+                        # Index of the cell in the model
+                        cell_index = self.model.index(row, column)
+
+                        # Value of the cell
+                        cell_value = self.model.data(cell_index)
+                        # print(cell_value)
+                        items.append(str(cell_value).strip())
+
+                print(items)
+                # self.format_print()
+                doc = self.format_print(items)
+
+                # Save the document
+                doc.save("Printed/" + print_filename)
+                self.closeUI()
+            else:
+                dlg = QMessageBox(self)
+                dlg.setWindowTitle("Warning Message")
+                dlg.setText("Please select a row!")
+                dlg.setStandardButtons(QMessageBox.Ok)
+                dlg.setIcon(QMessageBox.Question)
+                button = dlg.exec()
+
+                if button == QMessageBox.Ok:
+                    print("Ok!")
+        else:
+            print("No!")
+
+    def format_print(self, selected):
+
+        keys = ['ITEMCODE:', 'ITEMNAME:', 'DEPARTMENT:', 'UOM:', 'PRICE:', 'W.SALE PRICE:', 'BAL:']
+
+        # Create a new document
+        document = Document()
+
+        # Set font size for the entire document
+        document.styles['Normal'].font.size = Pt(10)
+
+        # Set margins for the document (in inches)
+        sections = document.sections
+        for section in sections:
+            section.left_margin = Inches(0.2)
+            section.right_margin = Inches(0.2)
+            section.top_margin = Inches(0.2)
+            section.bottom_margin = Inches(0.2)
+
+        # Set page size for the document
+        section = document.sections[0]
+        section.page_width = Inches(1.89)
+        section.page_height = Inches(8.26)
+
+        # Add shop name
+        shop_name = 'ZANK POS ENTERPRISES'
+        document.add_paragraph(shop_name)
+
+        document.add_paragraph("--------------------------------")
+
+        current_year = date.today().year
+        print(current_year)
+
+        print_id = 0
+        print_id_txt = ""
+
+        # Read the config file
+        with open("config.txt", 'r') as file:
+            config_lines = file.readlines()
+
+        # Find the line with the setting key and extract the value
+        for line in config_lines:
+            line = line.strip()
+            if line.startswith('incrementing_ID'):
+                _, value = line.split(':')
+                print_id = value.strip()
+                print_id_txt = str(current_year) + "000" + str(print_id)
+                document.add_paragraph(f"Print ID: {print_id_txt}")
+                document.add_paragraph("\n")
+                print("Incrementing_ID: " + print_id)
+
+        # Find the line with the setting key and update the value
+        for i in range(len(config_lines)):
+            line = config_lines[i].strip()
+            if line.startswith('incrementing_ID'):
+                config_lines[i] = f"{'incrementing_ID'}: {int(print_id) + 1}\n"
+                break
+
+        # Write the updated content back to the file
+        with open("config.txt", 'w') as file:
+            file.writelines(config_lines)
+
+        # Add item details
+        item_details = {k: v for k, v in zip(keys, selected)}
+
+        for key, value in item_details.items():
+            document.add_paragraph(key)
+
+            if any(word in key for word in ["PRICE", "W.SALE PRICE", "BAL"]):
+                document.add_paragraph("Php " + value)
+            else:
+                document.add_paragraph(value)
+
+        document.add_paragraph("\n")
+
+        current_date = date.today()
+        formatted_date = current_date.strftime("%m/%d/%Y")
+
+        # Add closing statement
+        parag1 = document.add_paragraph('Thank you!')
+
+        # Set font style for paragraph 1
+        for run in parag1.runs:
+            run.italic = True
+
+        document.add_paragraph("--------------------------------")
+        parag2 = document.add_paragraph(f"Date: {formatted_date}")
+
+        # Set font style for paragraph 1
+        for run in parag2.runs:
+            run.italic = True
+
+        # Set alignment for specific paragraphs
+        for paragraph in document.paragraphs:
+            if any(word in paragraph.text for word in ["ZANK", "Print", "Thank", "Date:"]):
+                paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+            elif any(word in paragraph.text for word in ["ITEM", "DEPARTMENT", "UOM", "PRICE", "BAL"]):
+                paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
+            else:
+                paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
+
+        current_datetime = datetime.now()
+        formatted_datetime = current_datetime.strftime("%Y-%m-%d-%H-%M-%S-%f")
+        print("DateTime: " + formatted_datetime)
+        global print_filename
+        print_filename = formatted_datetime + "ID" + print_id_txt + ".docx"
+        # print_filename = str(current_datetime).replace(" ", "-")
+        print("Filename: " + print_filename)
+
+        return document
+
     def enter(self):
         print("Entered!")
 
@@ -330,21 +516,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.closeUI()
 
     def closeUI(self):
-        print("Closed!")
+        print("\nClosed!")
         self.close()
 
     def on_focusChanged(self, old, new):
         # If the new focus widget is not the table view, clear the selection
-        if new != self.tableView and new != self.enterBtn:
+        if new != self.tableView and new != self.enterBtn and new != self.printBtn and old == self.tableView and old == self.enterBtn and old == self.printBtn :
             self.tableView.clearSelection()
 
     def prev(self):
         print("Previous!")
         self.model.clear()
         global current_page
-        # global isUsed
-        #
-        # isUsed = False
 
         if current_page > 0 and current_page != 1:
             self.prevBtn.setDisabled(False)
@@ -438,13 +621,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             item_row = []
             if startIndex <= index < endIndex:
                 # print("Index: ", index)
-                for column in row:
+                for num, column in enumerate(row):
                     # item = QStandardItem(str(value))
                     # if column == 1:  # Specify the desired column index
                     #     item.setTextAlignment(Qt.AlignLeft)
                     # else:
                     #     item.setTextAlignment(Qt.AlignCenter)
                     # item_row.append(item)
+                    # print("Column " + str(num+1) + ": " + str(column))
+                    # Set the delegate for the specific column
                     item = QStandardItem(str(column))
                     item.setTextAlignment(Qt.AlignCenter)
                     item_row.append(item)
@@ -452,13 +637,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.model.appendRow(item_row)
 
             if index == len(self.search_isUsed())+1 and isUsed:
-                # print("Index: ", index)
-                # print("Length: ", len(self.search_isUsed()))
                 self.nextBtn.setDisabled(True)
                 self.nextBtn.setStyleSheet("background-color: #5D8AA8; color: darkgray;")
             elif current_page == total_pages - 1:
-                # print("Curpage: ", current_page)
-                # print("total: ", total_pages)
                 self.nextBtn.setDisabled(True)
                 self.nextBtn.setStyleSheet("background-color: #5D8AA8; color: darkgray;")
 
@@ -497,7 +678,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.tableView.setColumnWidth(5, 120)
         self.tableView.setColumnWidth(6, 80)
 
-        # self.totalLabel.setText("Total Records: " + str(len(self.search_isUsed())))
         if len(self.search_isUsed()) <= rows_per_page:
             self.totalLabel.setText("Total Records: " + str(len(self.search_isUsed())) + "/" + str(len(self.search_isUsed())))
         elif len(self.search_isUsed()) > rows_per_page:
@@ -508,7 +688,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 if __name__ == "__main__":
     app = PyQt5.QtWidgets.QApplication([])
     window = MainWindow()
-    window.setFixedSize(1040, 600)  # Set the desired width and height
+    # window.setFixedSize(1040, 600)  # Set the desired width and height
     window.show()
     app.exec_()
 
